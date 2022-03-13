@@ -53,7 +53,6 @@ public class PlayerController : MonoBehaviour {
 
     // FixedUpdate is called every fixed frame-rate frame
     private void FixedUpdate() {
-        Debug.Log(_velocity);
         _rigidbody2D.velocity = _velocity * _speed * Time.deltaTime;
     }
 
