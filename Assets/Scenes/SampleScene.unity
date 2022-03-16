@@ -269,6 +269,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 447e77f2-b36b-48bb-a1b7-63f7dd2eb489
     m_ActionName: MatchControlls/Jump[/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 256363736}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnLightAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 51793048-80fd-418c-9929-4d1750ef5c1d
+    m_ActionName: MatchControlls/LightAttack[/Keyboard/j]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: MatchControlls

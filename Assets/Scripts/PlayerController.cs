@@ -20,16 +20,28 @@ public class PlayerController : MonoBehaviour {
     private float _speed;
     private float _movementSpeed;
     private float _direction;
+    private bool _isGrounded;
 
     public void OnJump(InputAction.CallbackContext context) {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(_groundCheck.transform.position, 0.05f, _groundLayer);
-        if (colliders.Length > 0) {
-            _velocity.y = 12.0f;
-            _boxCollider2D.size = new Vector2(_boxCollider2D.size.x, 0.75f);
-            if(!Mathf.Approximately(_direction, 0.0f)) {
-                _velocity = new Vector2(_direction * _movementSpeed, _velocity.y);
+        if (context.performed) {
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(_groundCheck.transform.position, 0.05f, _groundLayer);
+            if (colliders.Length > 0) {
+                _velocity.y = 12.0f;
+                _boxCollider2D.size = new Vector2(_boxCollider2D.size.x, 0.75f);
+                if (!Mathf.Approximately(_direction, 0.0f)) {
+                    _velocity = new Vector2(_direction * _movementSpeed, _velocity.y);
+                }
+                _hurtboxes.ResizeForJump();
+                _isGrounded = false;
             }
-            _hurtboxes.ResizeForJump();
+        }
+    }
+
+    public void OnLightAttack(InputAction.CallbackContext context) { 
+        if(context.performed) {
+            if(!_hurtboxes.PerfomingAttack() && _isGrounded) {
+                _hurtboxes.StartAttack(14);
+            }
         }
     }
 
@@ -58,7 +70,14 @@ public class PlayerController : MonoBehaviour {
             // if I just touched the ground do this stuff then don't do it again until after I've jumped.
             _velocity.y = 0.0f;
             _boxCollider2D.size = new Vector2(_boxCollider2D.size.x, 1.0f);
-            _hurtboxes.ResetDefaultBoxSettings();
+            if(!_isGrounded) {
+                _hurtboxes.ResetDefaultBoxSettings();
+            }
+            _isGrounded = true;
+        }
+
+        if(_hurtboxes.PerfomingAttack()) {
+            _direction = 0.0f;
         }
 
         if(Mathf.Approximately(_velocity.y, 0.0f)) {
@@ -68,6 +87,7 @@ public class PlayerController : MonoBehaviour {
 
     // FixedUpdate is called every fixed frame-rate frame
     private void FixedUpdate() {
+        _hurtboxes.UpdateHurtboxes();
         _rigidbody2D.velocity = _velocity * _speed * Time.deltaTime;
     }
 

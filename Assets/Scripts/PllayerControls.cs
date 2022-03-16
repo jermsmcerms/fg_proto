@@ -44,6 +44,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LightAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""51793048-80fd-418c-9929-4d1750ef5c1d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -81,6 +90,39 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""89e747dc-ef03-4eee-8105-df6b12bef833"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""b41a8225-caff-4a20-8b19-2c06125541f9"",
+                    ""path"": ""<HID::ZEROPLUS P4 Wired Gamepad>/hat/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""6b8e1c26-42d8-4a56-a90b-07d7fab4843b"",
+                    ""path"": ""<HID::ZEROPLUS P4 Wired Gamepad>/hat/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
                     ""name"": """",
                     ""id"": ""e91144c5-e999-4ad2-aadb-64bab98d8d47"",
                     ""path"": ""<Keyboard>/space"",
@@ -88,6 +130,28 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a1c5fa9c-1d71-410d-b98f-96e53b27fdb6"",
+                    ""path"": ""<HID::ZEROPLUS P4 Wired Gamepad>/hat/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bcf9a250-3c9b-4cb8-95d7-282df04de076"",
+                    ""path"": ""<Keyboard>/j"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LightAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -100,6 +164,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_MatchControlls = asset.FindActionMap("MatchControlls", throwIfNotFound: true);
         m_MatchControlls_Movement = m_MatchControlls.FindAction("Movement", throwIfNotFound: true);
         m_MatchControlls_Jump = m_MatchControlls.FindAction("Jump", throwIfNotFound: true);
+        m_MatchControlls_LightAttack = m_MatchControlls.FindAction("LightAttack", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -161,12 +226,14 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private IMatchControllsActions m_MatchControllsActionsCallbackInterface;
     private readonly InputAction m_MatchControlls_Movement;
     private readonly InputAction m_MatchControlls_Jump;
+    private readonly InputAction m_MatchControlls_LightAttack;
     public struct MatchControllsActions
     {
         private @PlayerControls m_Wrapper;
         public MatchControllsActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_MatchControlls_Movement;
         public InputAction @Jump => m_Wrapper.m_MatchControlls_Jump;
+        public InputAction @LightAttack => m_Wrapper.m_MatchControlls_LightAttack;
         public InputActionMap Get() { return m_Wrapper.m_MatchControlls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -182,6 +249,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Jump.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnJump;
+                @LightAttack.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
+                @LightAttack.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
+                @LightAttack.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
             }
             m_Wrapper.m_MatchControllsActionsCallbackInterface = instance;
             if (instance != null)
@@ -192,6 +262,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
+                @LightAttack.started += instance.OnLightAttack;
+                @LightAttack.performed += instance.OnLightAttack;
+                @LightAttack.canceled += instance.OnLightAttack;
             }
         }
     }
@@ -200,5 +273,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnLightAttack(InputAction.CallbackContext context);
     }
 }
