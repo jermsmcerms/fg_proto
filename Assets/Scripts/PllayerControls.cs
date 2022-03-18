@@ -53,6 +53,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Crouch"",
+                    ""type"": ""Button"",
+                    ""id"": ""db3d1bf3-f706-4708-ba55-f23c859fc077"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -154,6 +163,17 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""LightAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4c7837b3-6aec-4740-bcc9-0d6f4a7d1549"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -165,6 +185,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_MatchControlls_Movement = m_MatchControlls.FindAction("Movement", throwIfNotFound: true);
         m_MatchControlls_Jump = m_MatchControlls.FindAction("Jump", throwIfNotFound: true);
         m_MatchControlls_LightAttack = m_MatchControlls.FindAction("LightAttack", throwIfNotFound: true);
+        m_MatchControlls_Crouch = m_MatchControlls.FindAction("Crouch", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -227,6 +248,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_MatchControlls_Movement;
     private readonly InputAction m_MatchControlls_Jump;
     private readonly InputAction m_MatchControlls_LightAttack;
+    private readonly InputAction m_MatchControlls_Crouch;
     public struct MatchControllsActions
     {
         private @PlayerControls m_Wrapper;
@@ -234,6 +256,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Movement => m_Wrapper.m_MatchControlls_Movement;
         public InputAction @Jump => m_Wrapper.m_MatchControlls_Jump;
         public InputAction @LightAttack => m_Wrapper.m_MatchControlls_LightAttack;
+        public InputAction @Crouch => m_Wrapper.m_MatchControlls_Crouch;
         public InputActionMap Get() { return m_Wrapper.m_MatchControlls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -252,6 +275,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @LightAttack.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
                 @LightAttack.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
                 @LightAttack.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
+                @Crouch.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnCrouch;
+                @Crouch.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnCrouch;
+                @Crouch.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnCrouch;
             }
             m_Wrapper.m_MatchControllsActionsCallbackInterface = instance;
             if (instance != null)
@@ -265,6 +291,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @LightAttack.started += instance.OnLightAttack;
                 @LightAttack.performed += instance.OnLightAttack;
                 @LightAttack.canceled += instance.OnLightAttack;
+                @Crouch.started += instance.OnCrouch;
+                @Crouch.performed += instance.OnCrouch;
+                @Crouch.canceled += instance.OnCrouch;
             }
         }
     }
@@ -274,5 +303,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnMovement(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnLightAttack(InputAction.CallbackContext context);
+        void OnCrouch(InputAction.CallbackContext context);
     }
 }

@@ -7,11 +7,12 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlayerController : MonoBehaviour {
     [SerializeField] private GameObject _groundCheck;
-    [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private Hurtboxes _hurtboxes;
+    [SerializeField] private LayerMask _groundLayer;
     
     private Rigidbody2D _rigidbody2D;
-    private BoxCollider2D _boxCollider2D;
+    private BoxCollider2D _pushBox;
+    private SpriteRenderer _pushBoxSR;
     private PlayerControls _playerControls;
 
 
@@ -21,18 +22,28 @@ public class PlayerController : MonoBehaviour {
     private float _movementSpeed;
     private float _direction;
     private bool _isGrounded;
+    private bool _isCrouching;
+
+    public void OnCrouch(InputAction.CallbackContext context) { 
+        if(context.performed && !_hurtboxes.PerfomingAttack()) {
+            _isCrouching = true;
+        } else if(context.canceled) {
+            _isCrouching = false;
+        }
+    }
 
     public void OnJump(InputAction.CallbackContext context) {
         if (context.performed) {
             Collider2D[] colliders = Physics2D.OverlapCircleAll(_groundCheck.transform.position, 0.05f, _groundLayer);
             if (colliders.Length > 0) {
                 _velocity.y = 12.0f;
-                _boxCollider2D.size = new Vector2(_boxCollider2D.size.x, 0.75f);
+                _pushBox.size = new Vector2(_pushBox.size.x, _pushBox.size.y * 0.75f);
                 if (!Mathf.Approximately(_direction, 0.0f)) {
                     _velocity = new Vector2(_direction * _movementSpeed, _velocity.y);
                 }
                 _hurtboxes.ResizeForJump();
                 _isGrounded = false;
+                _pushBoxSR.sprite = Resources.Load<Sprite>("Sprites/pushbox_air");
             }
         }
     }
@@ -49,7 +60,10 @@ public class PlayerController : MonoBehaviour {
     private void Awake() {
         _playerControls = new PlayerControls();
         _rigidbody2D = GetComponent<Rigidbody2D>();
-        _boxCollider2D = GetComponent<BoxCollider2D>();
+        _pushBox = GetComponent<BoxCollider2D>();
+        _pushBoxSR = GetComponent<SpriteRenderer>();
+        _pushBoxSR.sprite = Resources.Load<Sprite>("Sprites/pushbox_ground");
+        _pushBoxSR.sortingLayerName = "Foreground";
         _velocity = Vector2.zero;
         _speed = 10.0f;
         _movementSpeed = 10.0f;
@@ -66,28 +80,38 @@ public class PlayerController : MonoBehaviour {
 
         Collider2D[] colliders = Physics2D.OverlapCircleAll(_groundCheck.transform.position, 0.05f, _groundLayer);
         if (colliders.Length > 0 && _velocity.y < 0) {
+            _velocity.y = 0.0f;
             // Don't really need to do this every frame. I can check if I'm grounded every frame and 
             // if I just touched the ground do this stuff then don't do it again until after I've jumped.
-            _velocity.y = 0.0f;
-            _boxCollider2D.size = new Vector2(_boxCollider2D.size.x, 1.0f);
             if(!_isGrounded) {
+                _pushBoxSR.sprite = Resources.Load<Sprite>("Sprites/pushbox_ground");
                 _hurtboxes.ResetDefaultBoxSettings();
+                _isGrounded = true;
             }
-            _isGrounded = true;
         }
 
-        if(_hurtboxes.PerfomingAttack()) {
+        if (_hurtboxes.PerfomingAttack() || _isCrouching) {
             _direction = 0.0f;
         }
 
-        if(Mathf.Approximately(_velocity.y, 0.0f)) {
+        if(_isGrounded) {
+            if (_isCrouching) {
+                _pushBox.offset = new Vector2(0.0f, -0.34f);
+                _pushBox.size = new Vector2(1.3f, 1.9f);
+            } else {
+                _pushBox.offset = Vector2.zero;
+                _pushBox.size = new Vector2(1.3f, 2.57f);
+            }
+        }
+
+        if (Mathf.Approximately(_velocity.y, 0.0f)) {
             _velocity = new Vector2(_direction * _movementSpeed, _velocity.y);
         }
     }
 
     // FixedUpdate is called every fixed frame-rate frame
     private void FixedUpdate() {
-        _hurtboxes.UpdateHurtboxes();
+        _hurtboxes.UpdateHurtboxes(_isGrounded, _isCrouching);
         _rigidbody2D.velocity = _velocity * _speed * Time.deltaTime;
     }
 
