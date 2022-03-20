@@ -73,34 +73,30 @@ public class Hurtboxes : MonoBehaviour
     }
 
     public void UpdateHurtboxes(bool isGrounded, bool isCrouching) {
-        if(isGrounded) {
-            if (isCrouching) {
-                GameObject feetHurtbox = _hurtboxes[0];
-                feetHurtbox.transform.localPosition = new Vector3(-0.15f, -0.81f, 0.0f);
-                SpriteRenderer feetHurtboxSprite = feetHurtbox.GetComponent<SpriteRenderer>();
-                feetHurtboxSprite.sprite = _hurtboxSprites["feet_crouch"];
+        if(isGrounded && isCrouching) { 
+            GameObject feetHurtbox = _hurtboxes[0];
+            feetHurtbox.transform.localPosition = new Vector3(-0.15f, -0.81f, 0.0f);
+            SpriteRenderer feetHurtboxSprite = feetHurtbox.GetComponent<SpriteRenderer>();
+            feetHurtboxSprite.sprite = _hurtboxSprites["feet_crouch"];
 
-                BoxCollider2D feetCollider = feetHurtbox.GetComponent<BoxCollider2D>();
-                feetCollider.size = new Vector2(1.86f, 0.93f);
+            BoxCollider2D feetCollider = feetHurtbox.GetComponent<BoxCollider2D>();
+            feetCollider.size = new Vector2(1.86f, 0.93f);
 
-                GameObject chestHurtbox = _hurtboxes[1];
-                chestHurtbox.transform.localPosition = new Vector3(-0.07f, .17f, 0.0f);
-                SpriteRenderer chestHurtboxSprite = chestHurtbox.GetComponent<SpriteRenderer>();
-                chestHurtboxSprite.sprite = _hurtboxSprites["chest_crouch"];
+            GameObject chestHurtbox = _hurtboxes[1];
+            chestHurtbox.transform.localPosition = new Vector3(-0.07f, .17f, 0.0f);
+            SpriteRenderer chestHurtboxSprite = chestHurtbox.GetComponent<SpriteRenderer>();
+            chestHurtboxSprite.sprite = _hurtboxSprites["chest_crouch"];
 
-                BoxCollider2D chestCollider = chestHurtbox.GetComponent<BoxCollider2D>();
-                chestCollider.size = new Vector2(1.6f, 1.1f);
+            BoxCollider2D chestCollider = chestHurtbox.GetComponent<BoxCollider2D>();
+            chestCollider.size = new Vector2(1.6f, 1.1f);
 
-                GameObject headHurtbox= _hurtboxes[2];
-                headHurtbox.transform.localPosition = new Vector3(0.2f, 0.81f, 0.0f);
-            } else {
-                ResetDefaultBoxSettings();
-            }
+            GameObject headHurtbox= _hurtboxes[2];
+            headHurtbox.transform.localPosition = new Vector3(0.2f, 0.81f, 0.0f);
         }
-        
-        if(_performingAttack) {
-            if(_attackCountdown > 0) {
-                if(_attackCountdown == 12) {
+
+        if (!isCrouching && _performingAttack) {
+            if (_attackCountdown > 0) {
+                if (_attackCountdown == 12) {
                     _hurtboxes[2].transform.localPosition = new Vector3(1.2f, _hurtboxes[2].transform.localPosition.y, 0.0f);
                     SpriteRenderer headHurtbox = _hurtboxes[2].GetComponent<SpriteRenderer>();
                     headHurtbox.sprite = _hurtboxSprites["jab_head_1"];

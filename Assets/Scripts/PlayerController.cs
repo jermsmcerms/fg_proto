@@ -29,6 +29,7 @@ public class PlayerController : MonoBehaviour {
             _isCrouching = true;
         } else if(context.canceled) {
             _isCrouching = false;
+            _hurtboxes.ResetDefaultBoxSettings();
         }
     }
 
@@ -49,7 +50,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     public void OnLightAttack(InputAction.CallbackContext context) { 
-        if(context.performed) {
+        if(context.performed && !_isCrouching) {
             if(!_hurtboxes.PerfomingAttack() && _isGrounded) {
                 _hurtboxes.StartAttack(14);
             }
