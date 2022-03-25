@@ -37,27 +37,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Jump"",
-                    ""type"": ""Button"",
-                    ""id"": ""447e77f2-b36b-48bb-a1b7-63f7dd2eb489"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""LightAttack"",
+                    ""name"": ""Attack"",
                     ""type"": ""Button"",
                     ""id"": ""51793048-80fd-418c-9929-4d1750ef5c1d"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Crouch"",
-                    ""type"": ""Button"",
-                    ""id"": ""db3d1bf3-f706-4708-ba55-f23c859fc077"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -133,45 +115,12 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""e91144c5-e999-4ad2-aadb-64bab98d8d47"",
-                    ""path"": ""<Keyboard>/space"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Jump"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""a1c5fa9c-1d71-410d-b98f-96e53b27fdb6"",
-                    ""path"": ""<HID::ZEROPLUS P4 Wired Gamepad>/hat/up"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Jump"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""bcf9a250-3c9b-4cb8-95d7-282df04de076"",
-                    ""path"": ""<Keyboard>/j"",
+                    ""path"": ""<Keyboard>/g"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""LightAttack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""4c7837b3-6aec-4740-bcc9-0d6f4a7d1549"",
-                    ""path"": ""<Keyboard>/s"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Crouch"",
+                    ""action"": ""Attack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -183,9 +132,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         // MatchControlls
         m_MatchControlls = asset.FindActionMap("MatchControlls", throwIfNotFound: true);
         m_MatchControlls_Movement = m_MatchControlls.FindAction("Movement", throwIfNotFound: true);
-        m_MatchControlls_Jump = m_MatchControlls.FindAction("Jump", throwIfNotFound: true);
-        m_MatchControlls_LightAttack = m_MatchControlls.FindAction("LightAttack", throwIfNotFound: true);
-        m_MatchControlls_Crouch = m_MatchControlls.FindAction("Crouch", throwIfNotFound: true);
+        m_MatchControlls_Attack = m_MatchControlls.FindAction("Attack", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -246,17 +193,13 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_MatchControlls;
     private IMatchControllsActions m_MatchControllsActionsCallbackInterface;
     private readonly InputAction m_MatchControlls_Movement;
-    private readonly InputAction m_MatchControlls_Jump;
-    private readonly InputAction m_MatchControlls_LightAttack;
-    private readonly InputAction m_MatchControlls_Crouch;
+    private readonly InputAction m_MatchControlls_Attack;
     public struct MatchControllsActions
     {
         private @PlayerControls m_Wrapper;
         public MatchControllsActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_MatchControlls_Movement;
-        public InputAction @Jump => m_Wrapper.m_MatchControlls_Jump;
-        public InputAction @LightAttack => m_Wrapper.m_MatchControlls_LightAttack;
-        public InputAction @Crouch => m_Wrapper.m_MatchControlls_Crouch;
+        public InputAction @Attack => m_Wrapper.m_MatchControlls_Attack;
         public InputActionMap Get() { return m_Wrapper.m_MatchControlls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -269,15 +212,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Movement.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnMovement;
                 @Movement.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnMovement;
                 @Movement.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnMovement;
-                @Jump.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnJump;
-                @Jump.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnJump;
-                @Jump.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnJump;
-                @LightAttack.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
-                @LightAttack.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
-                @LightAttack.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnLightAttack;
-                @Crouch.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnCrouch;
-                @Crouch.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnCrouch;
-                @Crouch.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnCrouch;
+                @Attack.started -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnAttack;
+                @Attack.performed -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnAttack;
+                @Attack.canceled -= m_Wrapper.m_MatchControllsActionsCallbackInterface.OnAttack;
             }
             m_Wrapper.m_MatchControllsActionsCallbackInterface = instance;
             if (instance != null)
@@ -285,15 +222,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Movement.started += instance.OnMovement;
                 @Movement.performed += instance.OnMovement;
                 @Movement.canceled += instance.OnMovement;
-                @Jump.started += instance.OnJump;
-                @Jump.performed += instance.OnJump;
-                @Jump.canceled += instance.OnJump;
-                @LightAttack.started += instance.OnLightAttack;
-                @LightAttack.performed += instance.OnLightAttack;
-                @LightAttack.canceled += instance.OnLightAttack;
-                @Crouch.started += instance.OnCrouch;
-                @Crouch.performed += instance.OnCrouch;
-                @Crouch.canceled += instance.OnCrouch;
+                @Attack.started += instance.OnAttack;
+                @Attack.performed += instance.OnAttack;
+                @Attack.canceled += instance.OnAttack;
             }
         }
     }
@@ -301,8 +232,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     public interface IMatchControllsActions
     {
         void OnMovement(InputAction.CallbackContext context);
-        void OnJump(InputAction.CallbackContext context);
-        void OnLightAttack(InputAction.CallbackContext context);
-        void OnCrouch(InputAction.CallbackContext context);
+        void OnAttack(InputAction.CallbackContext context);
     }
 }
