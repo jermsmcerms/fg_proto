@@ -84,13 +84,11 @@ public class Fighter : MonoBehaviour
             case AttackType.LONG: {
                 int attackPhase = (LONG_POKE_ATTACK_DURATION - _attackCountdown);
                 if (attackPhase <= _longAttackFrameData[0]) {
-                    Debug.Log("start up");
-                } else if(attackPhase > _longAttackFrameData[0] && attackPhase <= _longAttackFrameData[0] + _longAttackFrameData[1] - 1) {
                     _hurtboxes[2].enabled = true;
                     _hurtboxes[2].size = new Vector2(2.0f, 0.75f);
                     _hurtboxes[2].offset = new Vector2(1.0f, -0.77f);
+                } else if(attackPhase > _longAttackFrameData[0] && attackPhase <= _longAttackFrameData[0] + _longAttackFrameData[1] - 1) {
                 } else if(attackPhase > _longAttackFrameData[1] && attackPhase <= _longAttackFrameData[0] + _longAttackFrameData[1] + _longAttackFrameData[2]) {
-                    Debug.Log("recovery");
                 }
                 break; 
             }
