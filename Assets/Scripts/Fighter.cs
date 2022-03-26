@@ -11,7 +11,9 @@ public class Fighter : MonoBehaviour
     private static readonly int SPECIAL_ATTACK_DURATION = 49;
     private static readonly int INVINCIBLE_ATTACK_DURATION = 56;
 
-    private BoxCollider2D[] _hurtboxes;
+    private BoxCollider2D _hurtboxBody;
+    private BoxCollider2D _hurtboxLimb;
+    private BoxCollider2D _hitbox;
 
     private enum AttackType {
         NONE, SHORT, LONG, SPECIAL, INVINCIBLE, DEMON
@@ -69,31 +71,79 @@ public class Fighter : MonoBehaviour
         _attackType = AttackType.INVINCIBLE;
     }
 
-    private void ResetHurtBoxes() {
-        Debug.Log("reset hurtboxes");
-        _hurtboxes[2].enabled = false;
-    }
-
     private void UpdateHurtboxes() {
         switch (_attackType) {
             case AttackType.SHORT: {
-
+                int attackPhase = (SHORT_POKE_ATTACK_DURATION - _attackCountdown);
+                if (attackPhase <= _shortAttackFrameData[0]) {
+                    _hurtboxLimb.enabled = true;
+                    _hurtboxLimb.transform.position = new Vector3(0.875f, -0.435f, 0);
+                    _hurtboxLimb.size = new Vector2(1.4f, 1.75f);
+                } else if (attackPhase > _shortAttackFrameData[0] && attackPhase <= _shortAttackFrameData[0] + _shortAttackFrameData[1] - 1) {
+                    _hitbox.enabled = true;
+                    _hitbox.size = new Vector2(1.4f, 1.75f);
+                    _hitbox.offset = new Vector2(0.875f, -0.435f);
+                } else if (attackPhase > _shortAttackFrameData[1] && attackPhase <= _shortAttackFrameData[0] + _shortAttackFrameData[1] + _shortAttackFrameData[2]) {
+                    _hitbox.enabled = false;
+                    _hitbox.size = Vector2.zero;
+                    _hitbox.offset = Vector2.zero;
+                }
                 break; 
             }
 
             case AttackType.LONG: {
                 int attackPhase = (LONG_POKE_ATTACK_DURATION - _attackCountdown);
                 if (attackPhase <= _longAttackFrameData[0]) {
-                    _hurtboxes[2].enabled = true;
-                    _hurtboxes[2].size = new Vector2(2.0f, 0.75f);
-                    _hurtboxes[2].offset = new Vector2(1.0f, -0.77f);
+                    _hurtboxLimb.enabled = true;
+                    _hurtboxLimb.transform.position = new Vector3(1.25f, -0.95f, 0);
+                    _hurtboxLimb.size = new Vector2(2.0f, 0.75f);
                 } else if(attackPhase > _longAttackFrameData[0] && attackPhase <= _longAttackFrameData[0] + _longAttackFrameData[1] - 1) {
+                    _hitbox.enabled = true;
+                    _hitbox.size = new Vector2(2.0f, 0.75f);
+                    _hitbox.offset = new Vector2(1.25f, -0.95f);
                 } else if(attackPhase > _longAttackFrameData[1] && attackPhase <= _longAttackFrameData[0] + _longAttackFrameData[1] + _longAttackFrameData[2]) {
+                    _hitbox.enabled= false;
+                    _hitbox.size = Vector2.zero;
+                    _hitbox.offset = Vector2.zero;
                 }
                 break; 
             }
-            case AttackType.SPECIAL: { break; }
-            case AttackType.INVINCIBLE: { break; }
+
+            case AttackType.SPECIAL: {
+                int attackPhase = (SPECIAL_ATTACK_DURATION - _attackCountdown);
+                if (attackPhase <= _specialAttackFrameData[0]) {
+                    _hurtboxLimb.enabled = true;
+                    _hurtboxLimb.transform.position = new Vector3(1.25f, 0.75f, 0);
+                    _hurtboxLimb.size = new Vector2(2.0f, 0.75f);
+                } else if (attackPhase > _specialAttackFrameData[0] && attackPhase <= _specialAttackFrameData[0] + _specialAttackFrameData[1] - 1) {
+                    _hitbox.enabled = true;
+                    _hitbox.size = new Vector2(2.0f, 0.75f);
+                    _hitbox.offset = new Vector2(1.25f, 0.75f);
+                } else if (attackPhase > _specialAttackFrameData[1] && attackPhase <= _specialAttackFrameData[0] + _specialAttackFrameData[1] + _specialAttackFrameData[2]) {
+                    _hitbox.enabled = false;
+                    _hitbox.size = Vector2.zero;
+                    _hitbox.offset = Vector2.zero;
+                }
+                break;
+            }
+
+            case AttackType.INVINCIBLE: {
+                int attackPhase = (INVINCIBLE_ATTACK_DURATION - _attackCountdown);
+                if (attackPhase <= _invincibleAttackFrameData[0]) {
+                    _hurtboxBody.enabled = false;
+                } else if (attackPhase > _invincibleAttackFrameData[0] && attackPhase <= _invincibleAttackFrameData[0] + _invincibleAttackFrameData[1] - 1) {
+                    _hurtboxBody.enabled = true;
+                    _hitbox.enabled = true;
+                    _hitbox.size = new Vector2(1.4f, 1.75f);
+                    _hitbox.offset = new Vector2(0.875f, -0.435f);
+                } else if (attackPhase > _invincibleAttackFrameData[1] && attackPhase <= _invincibleAttackFrameData[0] + _invincibleAttackFrameData[1] + _invincibleAttackFrameData[2]) {
+                    _hitbox.enabled = false;
+                    _hitbox.size = Vector2.zero;
+                    _hitbox.offset = Vector2.zero;
+                }
+                break;
+            }
+
             case AttackType.DEMON: { break; }
         }
     }
@@ -104,7 +154,7 @@ public class Fighter : MonoBehaviour
             _attackCountdown--;
             if (_attackCountdown == 0) {
                 _attackType = AttackType.NONE;
-                ResetHurtBoxes();
+                _hurtboxLimb.enabled = false;
             } else if (_attackCountdown < 0) {
                 _attackCountdown = 0;
             }
@@ -112,8 +162,11 @@ public class Fighter : MonoBehaviour
     }
 
     private void Awake() {
-        _hurtboxes = GetComponentsInChildren<BoxCollider2D>();
-        _hurtboxes[2].enabled = false;
+        _hurtboxBody = gameObject.transform.Find("Hurtboxes/HurtboxBody").GetComponent<BoxCollider2D>();
+        _hurtboxLimb = gameObject.transform.Find("Hurtboxes/HurtboxLimb").GetComponent<BoxCollider2D>();
+        _hurtboxLimb.enabled = false;
+        _hitbox = gameObject.transform.Find("Hitbox").GetComponent<BoxCollider2D>();
+        _hitbox.enabled = false;
         _attackType = AttackType.NONE;
     }
 
