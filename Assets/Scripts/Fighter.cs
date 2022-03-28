@@ -15,6 +15,11 @@ public class Fighter : MonoBehaviour
     private BoxCollider2D _hurtboxLimb;
     private BoxCollider2D _hitbox;
 
+    private SpriteRenderer _hurtboxBodySprite;
+    private SpriteRenderer _limbVerticalSprite;
+    private SpriteRenderer _limbHorizontalSprite;
+
+
     private enum AttackType {
         NONE, SHORT, LONG, SPECIAL, INVINCIBLE, DEMON
     }
@@ -33,10 +38,8 @@ public class Fighter : MonoBehaviour
 
     public void ChargeSpecialAttack() {
         _chargeCounter++;
-        Debug.Log("charging...");
         if (_chargeCounter >= FULL_CHARGE_AMOUNT) {
             _isAttackCharged = true;
-            Debug.Log("charged!");
         }
     }
 
@@ -49,12 +52,14 @@ public class Fighter : MonoBehaviour
     public void PerformLongPokeAttack() {
         _attackCountdown = LONG_POKE_ATTACK_DURATION;
         _attackType = AttackType.LONG;
-
+        _limbHorizontalSprite.enabled = true;
+        _limbHorizontalSprite.transform.localPosition = new Vector3(1.25f, -0.71f, 0);
     }
 
     public void PerformShortPokeAttack() {
         _attackCountdown = SHORT_POKE_ATTACK_DURATION;
         _attackType = AttackType.SHORT;
+        _limbVerticalSprite.enabled = true;
     }
 
     public void PerformSpecialAttack() {
@@ -62,6 +67,8 @@ public class Fighter : MonoBehaviour
         _chargeCounter = 0;
         _isAttackCharged = false;
         _attackType = AttackType.SPECIAL;
+        _limbHorizontalSprite.enabled = true;
+        _limbHorizontalSprite.transform.localPosition = new Vector3(1.25f, 0.477f, 0);
     }
 
     public void PerformInvincibleAttack() {
@@ -69,6 +76,7 @@ public class Fighter : MonoBehaviour
         _chargeCounter = 0;
         _isAttackCharged = false;
         _attackType = AttackType.INVINCIBLE;
+        _limbVerticalSprite.enabled = true;
     }
 
     private void UpdateHurtboxes() {
@@ -77,16 +85,19 @@ public class Fighter : MonoBehaviour
                 int attackPhase = (SHORT_POKE_ATTACK_DURATION - _attackCountdown);
                 if (attackPhase <= _shortAttackFrameData[0]) {
                     _hurtboxLimb.enabled = true;
-                    _hurtboxLimb.transform.position = new Vector3(0.875f, -0.435f, 0);
                     _hurtboxLimb.size = new Vector2(1.4f, 1.75f);
                 } else if (attackPhase > _shortAttackFrameData[0] && attackPhase <= _shortAttackFrameData[0] + _shortAttackFrameData[1] - 1) {
                     _hitbox.enabled = true;
                     _hitbox.size = new Vector2(1.4f, 1.75f);
                     _hitbox.offset = new Vector2(0.875f, -0.435f);
+
+                    _limbVerticalSprite.color = Color.red;
                 } else if (attackPhase > _shortAttackFrameData[1] && attackPhase <= _shortAttackFrameData[0] + _shortAttackFrameData[1] + _shortAttackFrameData[2]) {
                     _hitbox.enabled = false;
                     _hitbox.size = Vector2.zero;
                     _hitbox.offset = Vector2.zero;
+
+                    _limbVerticalSprite.color = Color.white;
                 }
                 break; 
             }
@@ -95,16 +106,19 @@ public class Fighter : MonoBehaviour
                 int attackPhase = (LONG_POKE_ATTACK_DURATION - _attackCountdown);
                 if (attackPhase <= _longAttackFrameData[0]) {
                     _hurtboxLimb.enabled = true;
-                    _hurtboxLimb.transform.position = new Vector3(1.25f, -0.95f, 0);
                     _hurtboxLimb.size = new Vector2(2.0f, 0.75f);
                 } else if(attackPhase > _longAttackFrameData[0] && attackPhase <= _longAttackFrameData[0] + _longAttackFrameData[1] - 1) {
                     _hitbox.enabled = true;
                     _hitbox.size = new Vector2(2.0f, 0.75f);
-                    _hitbox.offset = new Vector2(1.25f, -0.95f);
+                    _hitbox.offset = new Vector2(1.25f, -0.71f);
+
+                    _limbHorizontalSprite.color = Color.red;
                 } else if(attackPhase > _longAttackFrameData[1] && attackPhase <= _longAttackFrameData[0] + _longAttackFrameData[1] + _longAttackFrameData[2]) {
                     _hitbox.enabled= false;
                     _hitbox.size = Vector2.zero;
                     _hitbox.offset = Vector2.zero;
+
+                    _limbHorizontalSprite.color = Color.white;
                 }
                 break; 
             }
@@ -113,16 +127,20 @@ public class Fighter : MonoBehaviour
                 int attackPhase = (SPECIAL_ATTACK_DURATION - _attackCountdown);
                 if (attackPhase <= _specialAttackFrameData[0]) {
                     _hurtboxLimb.enabled = true;
-                    _hurtboxLimb.transform.position = new Vector3(1.25f, 0.75f, 0);
                     _hurtboxLimb.size = new Vector2(2.0f, 0.75f);
                 } else if (attackPhase > _specialAttackFrameData[0] && attackPhase <= _specialAttackFrameData[0] + _specialAttackFrameData[1] - 1) {
                     _hitbox.enabled = true;
                     _hitbox.size = new Vector2(2.0f, 0.75f);
                     _hitbox.offset = new Vector2(1.25f, 0.75f);
+
+                    _limbHorizontalSprite.color = Color.red;
                 } else if (attackPhase > _specialAttackFrameData[1] && attackPhase <= _specialAttackFrameData[0] + _specialAttackFrameData[1] + _specialAttackFrameData[2]) {
+                    Debug.Log("here");
                     _hitbox.enabled = false;
                     _hitbox.size = Vector2.zero;
                     _hitbox.offset = Vector2.zero;
+
+                    _limbHorizontalSprite.color = Color.white;
                 }
                 break;
             }
@@ -131,15 +149,21 @@ public class Fighter : MonoBehaviour
                 int attackPhase = (INVINCIBLE_ATTACK_DURATION - _attackCountdown);
                 if (attackPhase <= _invincibleAttackFrameData[0]) {
                     _hurtboxBody.enabled = false;
+                    _hurtboxBodySprite.enabled = false;
                 } else if (attackPhase > _invincibleAttackFrameData[0] && attackPhase <= _invincibleAttackFrameData[0] + _invincibleAttackFrameData[1] - 1) {
                     _hurtboxBody.enabled = true;
+                    _hurtboxBodySprite.enabled = true;
                     _hitbox.enabled = true;
                     _hitbox.size = new Vector2(1.4f, 1.75f);
                     _hitbox.offset = new Vector2(0.875f, -0.435f);
+
+                    _limbVerticalSprite.color = Color.red;
                 } else if (attackPhase > _invincibleAttackFrameData[1] && attackPhase <= _invincibleAttackFrameData[0] + _invincibleAttackFrameData[1] + _invincibleAttackFrameData[2]) {
                     _hitbox.enabled = false;
                     _hitbox.size = Vector2.zero;
                     _hitbox.offset = Vector2.zero;
+
+                    _limbVerticalSprite.color = Color.white;
                 }
                 break;
             }
@@ -155,6 +179,12 @@ public class Fighter : MonoBehaviour
             if (_attackCountdown == 0) {
                 _attackType = AttackType.NONE;
                 _hurtboxLimb.enabled = false;
+                if(_limbVerticalSprite.enabled) {
+                    _limbVerticalSprite.enabled = false;
+                } 
+                if(_limbHorizontalSprite.enabled) {
+                    _limbHorizontalSprite.enabled = false;
+                }
             } else if (_attackCountdown < 0) {
                 _attackCountdown = 0;
             }
@@ -163,10 +193,21 @@ public class Fighter : MonoBehaviour
 
     private void Awake() {
         _hurtboxBody = gameObject.transform.Find("Hurtboxes/HurtboxBody").GetComponent<BoxCollider2D>();
-        _hurtboxLimb = gameObject.transform.Find("Hurtboxes/HurtboxLimb").GetComponent<BoxCollider2D>();
+        
+        _hurtboxLimb = gameObject.transform.Find("Hurtboxes/HurtboxLimbVertical").GetComponent<BoxCollider2D>();
         _hurtboxLimb.enabled = false;
+
         _hitbox = gameObject.transform.Find("Hitbox").GetComponent<BoxCollider2D>();
         _hitbox.enabled = false;
+
+        _hurtboxBodySprite = gameObject.transform.Find("Hurtboxes/HurtboxBody").GetComponent<SpriteRenderer>();
+
+        _limbVerticalSprite = gameObject.transform.Find("Hurtboxes/HurtboxLimbVertical").GetComponent<SpriteRenderer>();
+        _limbVerticalSprite.enabled = false;
+
+        _limbHorizontalSprite = gameObject.transform.Find("Hurtboxes/HurtboxLimbHorizontal").GetComponent<SpriteRenderer>();
+        _limbHorizontalSprite.enabled = false;
+
         _attackType = AttackType.NONE;
     }
 
