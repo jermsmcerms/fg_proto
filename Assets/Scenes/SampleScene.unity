@@ -603,7 +603,19 @@ MonoBehaviour:
       m_Calls: []
   m_ActionEvents:
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1551695069}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnMove
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: b0d458c8-8814-4bd5-9b8b-d83cb100d59a
     m_ActionName: MatchControlls/Movement[/Keyboard/a,/Keyboard/d,/ZEROPLUS P4 Wired
       Gamepad/hat/left,/ZEROPLUS P4 Wired Gamepad/hat/right]
