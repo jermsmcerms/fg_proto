@@ -3,6 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
+public class InputData {
+    public int[] inputs;
+    public float timestamp;
+
+    public InputData(int[] inputs, float timestamp) {
+        this.inputs = inputs;
+        this.timestamp = timestamp;
+    }
+}
+
 public class PlayerController : MonoBehaviour {
     [SerializeField] private float _speed = 2.0f;
 
@@ -13,58 +24,55 @@ public class PlayerController : MonoBehaviour {
     private float _velocity;
     private bool _beginCharge;
 
+    private int _bufferSize = 60;
+    private int _numSimultaniousInputs = 2;
+    private int[][] _inputBuffer;
+    private int _counter;
+    private float _direction;
+    private float _dashVelocity;
+
+    static int[] leftDash = { 1, 1 };
+    static int[] rightDash = { 2, 2 };
+
     public void OnAttack(InputAction.CallbackContext context) {
         if (context.performed) {
             _beginCharge = true;
-            //_attackValue = 4;
-            //if (!_fighter.PerformingAttack()) {
-            //    if (Mathf.Approximately(_velocity, 0.0f)) {
-            //        _fighter.PerformLongPokeAttack();
-            //    } else {
-            //        _fighter.PerformShortPokeAttack();
-            //    }
-            //}
         } else if (context.canceled) {
             _beginCharge = false;
-            //_attackValue = 0;
-            //if (_fighter.IsAttackCharged() && !_fighter.PerformingAttack()) {
-            //    if (Mathf.Approximately(_velocity, 0.0f)) {
-            //        _fighter.PerformSpecialAttack();
-            //    } else {
-            //        _fighter.PerformInvincibleAttack();
-            //    }
-            //}
         }
     }
 
-    float _direction;
     public void OnMove(InputAction.CallbackContext context) {
         if (context.performed) {
             _direction = context.ReadValue<float>();
             if (_direction < 0) {
-                _inputBuffer[(counter + _bufferSize) % _bufferSize][0] = 1;
+                _inputBuffer[mod(_counter, _bufferSize)][0] = 1;
             } else if (_direction > 0) {
-                _inputBuffer[(counter + _bufferSize) % _bufferSize][0] = 2;
+                _inputBuffer[mod(_counter, _bufferSize)][0] = 2;
             }
         } else if (context.canceled) {
             _direction = 0.0f;
         }
+
     }
 
     // Start is called before the first frame update
-    void Awake() {
+    private void Awake() {
         _playerControls = new PlayerControls();
         _rigidbody = GetComponent<Rigidbody2D>();
         _fighter = GetComponent<Fighter>();
 
         _inputBuffer = new int[_bufferSize][];
-        for(int i = 0; i < _inputBuffer.Length; i++) { 
+        for (int i = 0; i < _inputBuffer.Length; i++) {
             _inputBuffer[i] = new int[_numSimultaniousInputs];
         }
+
+        _dashVelocity = 20.0f;
+
     }
 
     // Update is called once per frame
-    void Update() {
+    private void Update() {
         if(_fighter.IsAttackCharged()) {
            // _attackValue = 8;
         }
@@ -72,24 +80,12 @@ public class PlayerController : MonoBehaviour {
         _velocity = _direction * _speed;
     }
 
-    int _bufferSize = 60;
-    int _numSimultaniousInputs = 2;
-    int[][] _inputBuffer; // TODO: Change to list of class InputInfo that contains input and timestamp. If the input has been in the buffer too long, remove it based on its time stamp.
-    int counter;
-
-    static int[] leftDash = { 1, 1 };
-    static int[] rightDash = { 2, 2 };
-    static int[] shortPoke = { 1, 2, 4 };
-    static int[] invincibleAttack = { 1, 2, 8 };
-    private int input;
-    private int _inputDirection;
-    private int _attackValue;
-
     private bool CheckSequence(int[] sequence, int duration) {
-        int w = sequence.Length - 1;     
+        int w = sequence.Length - 1;
         for (int i = 0; i < duration; i++) {
-            int index = (counter - i + _bufferSize) % _bufferSize;
+            int index = mod(mod(_counter, _bufferSize) - i, _bufferSize);
             int direction = _inputBuffer[index][0];
+
             if (direction == sequence[w]) {
                 --w;
             }
@@ -102,30 +98,29 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void ClearInputBuffer() {
-        for (int i = 0; i < _inputBuffer.Length; i++) {
+        for(int i = 0; i < _inputBuffer.Length; i++) {
             _inputBuffer[i][0] = 0;
             _inputBuffer[i][1] = 0;
         }
     }
 
     private void FixedUpdate() {
-        _inputBuffer[(counter + _bufferSize) % _bufferSize][1] = _attackValue;
-        counter++;
+        _counter++;
+        _inputBuffer[mod(_counter, _bufferSize)][0] = 0; 
+        _inputBuffer[mod(_counter, _bufferSize)][1] = 0; 
 
         if (_beginCharge && !_fighter.PerformingAttack()) {
             _fighter.ChargeSpecialAttack();
         }
 
-        if (CheckSequence(leftDash, 9)) {
-            Debug.Log("dash left");
-            ClearInputBuffer();
-        } else if (CheckSequence(rightDash, 9)) {
-            Debug.Log("dash right");
-            ClearInputBuffer();
+        if (!_fighter.PerformingAttack()) {
+            if (CheckSequence(leftDash, 9) ||CheckSequence(rightDash, 9)) {
+                _velocity *= _dashVelocity;
+                ClearInputBuffer();
+            }
         }
 
         _rigidbody.velocity = new Vector3(_velocity, 0, 0);
-        
     }
 
     private void OnEnable() {
@@ -135,5 +130,14 @@ public class PlayerController : MonoBehaviour {
 
     private void OnDisable() {
         _playerControls.MatchControlls.Disable();
+    }
+
+    /*
+     *  A little helper function to get mathamatically correct modulus division.
+     *  TODO: move into a separate file
+     */
+    private static int mod(int lhs, int rhs) {
+        int modValue = lhs % rhs;
+        return modValue < 0 ? modValue + rhs : modValue;
     }
 }
