@@ -33,12 +33,16 @@ public class PlayerController : MonoBehaviour {
 
     static int[] leftDash = { 1, 1 };
     static int[] rightDash = { 2, 2 };
+    static int[] rightShortPoke = { 2, 3 };
+    static int[] leftShortPoke = { 1, 3 };
 
     public void OnAttack(InputAction.CallbackContext context) {
         if (context.performed) {
             _beginCharge = true;
+            _inputBuffer[mod(_counter, _bufferSize)][1] = 3;
         } else if (context.canceled) {
             _beginCharge = false;
+            _inputBuffer[mod(_counter, _bufferSize)][1] = 0;
         }
     }
 
@@ -85,10 +89,16 @@ public class PlayerController : MonoBehaviour {
         for (int i = 0; i < duration; i++) {
             int index = mod(mod(_counter, _bufferSize) - i, _bufferSize);
             int direction = _inputBuffer[index][0];
+            int attack = _inputBuffer[index][1];
 
-            if (direction == sequence[w]) {
+            if (direction == sequence[0] && attack == sequence[1]) {
+                return true;
+            }
+
+            if (direction == sequence[w] || attack == sequence[w]) {
                 --w;
             }
+
             if (w == -1) {
                 return true;
             }
@@ -107,17 +117,21 @@ public class PlayerController : MonoBehaviour {
     private void FixedUpdate() {
         _counter++;
         _inputBuffer[mod(_counter, _bufferSize)][0] = 0; 
-        _inputBuffer[mod(_counter, _bufferSize)][1] = 0; 
+        _inputBuffer[mod(_counter, _bufferSize)][1] = 0;
 
         if (_beginCharge && !_fighter.PerformingAttack()) {
             _fighter.ChargeSpecialAttack();
         }
 
         if (!_fighter.PerformingAttack()) {
-            if (CheckSequence(leftDash, 9) ||CheckSequence(rightDash, 9)) {
+            if (CheckSequence(leftDash, 9) || CheckSequence(rightDash, 9)) {
                 _velocity *= _dashVelocity;
                 ClearInputBuffer();
+            } else if(CheckSequence(rightShortPoke, 9) || CheckSequence(leftShortPoke, 9)) {
+                _fighter.PerformShortPokeAttack();
             }
+        } else {
+            _velocity = 0;
         }
 
         _rigidbody.velocity = new Vector3(_velocity, 0, 0);
