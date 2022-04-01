@@ -25,34 +25,43 @@ public class PlayerController : MonoBehaviour {
     private bool _beginCharge;
 
     private int _bufferSize = 60;
-    private int _numSimultaniousInputs = 2;
-    private int[][] _inputBuffer;
+    private int[] _inputBuffer;
     private int _counter;
     private float _direction;
-    private float _dashVelocity;
 
     static int[] leftDash = { 1, 1 };
     static int[] rightDash = { 2, 2 };
-    static int[] rightShortPoke = { 2, 3 };
-    static int[] leftShortPoke = { 1, 3 };
 
     public void OnAttack(InputAction.CallbackContext context) {
-        if (context.performed) {
-            _beginCharge = true;
-            _inputBuffer[mod(_counter, _bufferSize)][1] = 3;
-        } else if (context.canceled) {
-            _beginCharge = false;
-            _inputBuffer[mod(_counter, _bufferSize)][1] = 0;
+        if (!_fighter.PerformingAction()) {
+            if (context.performed) {
+                _beginCharge = true;
+                if (_direction == 0) {
+                    _fighter.PerformLongPokeAttack();
+                } else {
+                    _fighter.PerformShortPokeAttack();
+                }
+            } else if (context.canceled) {
+                _beginCharge = false;
+                if (_fighter.IsAttackCharged()) {
+                    if (_direction == 0) {
+                        _fighter.PerformSpecialAttack();
+                    } else {
+                        _fighter.PerformInvincibleAttack();
+                    }
+                }
+            }
+        } else if (_fighter.CanCancel()) {
+            _fighter.PerformSpecialAttack();
         }
     }
-
     public void OnMove(InputAction.CallbackContext context) {
         if (context.performed) {
             _direction = context.ReadValue<float>();
             if (_direction < 0) {
-                _inputBuffer[mod(_counter, _bufferSize)][0] = 1;
+                _inputBuffer[mod(_counter, _bufferSize)] = 1;
             } else if (_direction > 0) {
-                _inputBuffer[mod(_counter, _bufferSize)][0] = 2;
+                _inputBuffer[mod(_counter, _bufferSize)] = 2;
             }
         } else if (context.canceled) {
             _direction = 0.0f;
@@ -66,21 +75,12 @@ public class PlayerController : MonoBehaviour {
         _rigidbody = GetComponent<Rigidbody2D>();
         _fighter = GetComponent<Fighter>();
 
-        _inputBuffer = new int[_bufferSize][];
-        for (int i = 0; i < _inputBuffer.Length; i++) {
-            _inputBuffer[i] = new int[_numSimultaniousInputs];
-        }
-
-        _dashVelocity = 20.0f;
+        _inputBuffer = new int[_bufferSize];
 
     }
 
     // Update is called once per frame
     private void Update() {
-        if(_fighter.IsAttackCharged()) {
-           // _attackValue = 8;
-        }
-
         _velocity = _direction * _speed;
     }
 
@@ -88,14 +88,9 @@ public class PlayerController : MonoBehaviour {
         int w = sequence.Length - 1;
         for (int i = 0; i < duration; i++) {
             int index = mod(mod(_counter, _bufferSize) - i, _bufferSize);
-            int direction = _inputBuffer[index][0];
-            int attack = _inputBuffer[index][1];
+            int direction = _inputBuffer[index];
 
-            if (direction == sequence[0] && attack == sequence[1]) {
-                return true;
-            }
-
-            if (direction == sequence[w] || attack == sequence[w]) {
+            if (direction == sequence[w]) {
                 --w;
             }
 
@@ -109,27 +104,30 @@ public class PlayerController : MonoBehaviour {
 
     private void ClearInputBuffer() {
         for(int i = 0; i < _inputBuffer.Length; i++) {
-            _inputBuffer[i][0] = 0;
-            _inputBuffer[i][1] = 0;
+            _inputBuffer[i] = 0;
         }
     }
 
     private void FixedUpdate() {
         _counter++;
-        _inputBuffer[mod(_counter, _bufferSize)][0] = 0; 
-        _inputBuffer[mod(_counter, _bufferSize)][1] = 0;
+        _inputBuffer[mod(_counter, _bufferSize)] = 0;
 
-        if (_beginCharge && !_fighter.PerformingAttack()) {
+        if (_beginCharge && !_fighter.PerformingAction()) {
             _fighter.ChargeSpecialAttack();
         }
 
-        if (!_fighter.PerformingAttack()) {
-            if (CheckSequence(leftDash, 9) || CheckSequence(rightDash, 9)) {
-                _velocity *= _dashVelocity;
-                ClearInputBuffer();
-            } else if(CheckSequence(rightShortPoke, 9) || CheckSequence(leftShortPoke, 9)) {
-                _fighter.PerformShortPokeAttack();
+        if (!_fighter.PerformingAction()) {
+            if(_beginCharge) {
+                _fighter.ChargeSpecialAttack();
             }
+
+            if (CheckSequence(leftDash, 9)) {
+                _fighter.PerformLeftDash();
+                ClearInputBuffer();
+            } else if (CheckSequence(rightDash, 9)) {
+                _fighter.PerformRightDash();
+                ClearInputBuffer();
+            }     
         } else {
             _velocity = 0;
         }
