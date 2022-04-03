@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class Fighter : MonoBehaviour
 {
+    [SerializeField] private bool _facingRight;
+    
     private static readonly int FULL_CHARGE_AMOUNT = 30;
     private static readonly int SHORT_POKE_ATTACK_DURATION = 22;
     private static readonly int LONG_POKE_ATTACK_DURATION = 23;
@@ -39,7 +41,6 @@ public class Fighter : MonoBehaviour
     private int _chargeCounter;
     private int _numBlocks = 3;
     private bool _isAttackCharged;
-    private bool _facingRight;
     private bool _hitUnblockingOpponent;
     private bool _canCancel;
     [SerializeField]private bool _isBlocking;
@@ -199,15 +200,21 @@ public class Fighter : MonoBehaviour
         }
     }
 
+    internal void SetBlocking(bool blocking) {
+        _isBlocking = blocking;
+    }
+
     private void CheckForCollisions() {
         Collider2D[] colliders = Physics2D.OverlapBoxAll(_hitbox.transform.position, _hitbox.size, 0);
         foreach (Collider2D collider in colliders) {
+            Debug.Log(collider.name);
             if (collider.name == "Dummy" && !_applyHit) {
                 _applyHit = true;
                 Fighter fighter = collider.transform.GetComponent<Fighter>();
                 if(!fighter.GetBlockState()) {
                     _hitUnblockingOpponent = true;
                     // TODO: Apply hit stun so attacker can combo
+                    Debug.Log(name + " hit opponent");
                 } else {
                     _hitUnblockingOpponent = false;
                     // TODO: Apply block stun 
@@ -220,7 +227,7 @@ public class Fighter : MonoBehaviour
     private void ApplyBlockStun(int stun) {
         _actionCountdown = stun; // TODO: change this to something that can block movement as well.
         _numBlocks--;
-        Debug.Log("blocked! " + _numBlocks + " left!");
+        Debug.Log(_numBlocks);
     }
 
     public bool GetBlockState() {

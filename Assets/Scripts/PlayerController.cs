@@ -16,6 +16,7 @@ public class InputData {
 
 public class PlayerController : MonoBehaviour {
     [SerializeField] private float _speed = 2.0f;
+    [SerializeField] private BoxCollider2D _pushBox;
 
     private PlayerControls _playerControls;
     private Rigidbody2D _rigidbody;
@@ -112,11 +113,21 @@ public class PlayerController : MonoBehaviour {
         _counter++;
         _inputBuffer[mod(_counter, _bufferSize)] = 0;
 
-        if (_beginCharge && !_fighter.PerformingAction()) {
-            _fighter.ChargeSpecialAttack();
+        if (!_fighter.PerformingAction()) {
+            if (_fighter.IsFacingRight()) {
+                if(_direction < 0) {
+                    _fighter.SetBlocking(true);
+                } else {
+                    _fighter.SetBlocking(false);
+                }
+            } else {
+                if (_direction > 0) {
+                    _fighter.SetBlocking(true);
+                } else {
+                    _fighter.SetBlocking(false);
+                }
         }
 
-        if (!_fighter.PerformingAction()) {
             if(_beginCharge) {
                 _fighter.ChargeSpecialAttack();
             }
@@ -136,7 +147,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void OnEnable() {
-        _playerControls.MatchControlls.Enable();
+            _playerControls.MatchControlls.Enable();
     }
 
 
