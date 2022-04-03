@@ -3,17 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
-public class InputData {
-    public int[] inputs;
-    public float timestamp;
-
-    public InputData(int[] inputs, float timestamp) {
-        this.inputs = inputs;
-        this.timestamp = timestamp;
-    }
-}
-
 public class PlayerController : MonoBehaviour {
     [SerializeField] private float _speed = 2.0f;
     [SerializeField] private BoxCollider2D _pushBox;
@@ -30,6 +19,7 @@ public class PlayerController : MonoBehaviour {
     private int _counter;
     private float _direction;
 
+    // Could be moved to data?
     static int[] leftDash = { 1, 1 };
     static int[] rightDash = { 2, 2 };
 
