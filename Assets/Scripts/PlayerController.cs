@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour {
     // Could be moved to data?
     static int[] leftDash = { 1, 1 };
     static int[] rightDash = { 2, 2 };
+    private bool _isOverlapping;
 
     public void OnAttack(InputAction.CallbackContext context) {
         if (!_fighter.PerformingAction()) {
@@ -103,35 +104,35 @@ public class PlayerController : MonoBehaviour {
         _counter++;
         _inputBuffer[mod(_counter, _bufferSize)] = 0;
 
-        if (!_fighter.PerformingAction()) {
-            if (_fighter.IsFacingRight()) {
-                if(_direction < 0) {
-                    _fighter.SetBlocking(true);
-                } else {
-                    _fighter.SetBlocking(false);
-                }
-            } else {
-                if (_direction > 0) {
-                    _fighter.SetBlocking(true);
-                } else {
-                    _fighter.SetBlocking(false);
-                }
-        }
+        //if (!_fighter.PerformingAction()) {
+        //    if (_fighter.IsFacingRight()) {
+        //        if(_direction < 0) {
+        //            _fighter.SetBlocking(true);
+        //        } else {
+        //            _fighter.SetBlocking(false);
+        //        }
+        //    } else {
+        //        if (_direction > 0) {
+        //            _fighter.SetBlocking(true);
+        //        } else {
+        //            _fighter.SetBlocking(false);
+        //        }
+        //}
 
-            if(_beginCharge) {
-                _fighter.ChargeSpecialAttack();
-            }
+        //    if(_beginCharge) {
+        //        _fighter.ChargeSpecialAttack();
+        //    }
 
-            if (CheckSequence(leftDash, 9)) {
-                _fighter.PerformLeftDash();
-                ClearInputBuffer();
-            } else if (CheckSequence(rightDash, 9)) {
-                _fighter.PerformRightDash();
-                ClearInputBuffer();
-            }     
-        } else {
-            _velocity = 0;
-        }
+        //    if (CheckSequence(leftDash, 9)) {
+        //        _fighter.PerformLeftDash();
+        //        ClearInputBuffer();
+        //    } else if (CheckSequence(rightDash, 9)) {
+        //        _fighter.PerformRightDash();
+        //        ClearInputBuffer();
+        //    }     
+        //} else {
+        //    _velocity = 0;
+        //}
 
         _rigidbody.velocity = new Vector3(_velocity, 0, 0);
     }
@@ -145,6 +146,14 @@ public class PlayerController : MonoBehaviour {
         _playerControls.MatchControlls.Disable();
     }
 
+
+    private void OnCollisionEnter2D(Collision2D collision) {
+        _isOverlapping = true;
+    }
+
+    private void OnCollisionExit2D(Collision2D collision) {
+        _isOverlapping = false;
+    }
     /*
      *  A little helper function to get mathamatically correct modulus division.
      *  TODO: move into a separate file

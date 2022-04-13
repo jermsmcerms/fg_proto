@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00fce1dd33e3ed34d8e0a63ae6837939, type: 3}
   m_Name: ActionDataContainer
   m_EditorClassIdentifier: 
-  actions: []
+  actions:
+  - {fileID: 11400000, guid: 5d9c3fe22951bb34891e393789aa9e71, type: 2}
+  - {fileID: 11400000, guid: 3b34884006c12d3429eb3b9f417524c8, type: 2}
+  - {fileID: 11400000, guid: 92fa66ad551fe154db29943448657fd1, type: 2}
+  - {fileID: 11400000, guid: d92aa75ab95702d4cbb4ca74fc9781ce, type: 2}
+  - {fileID: 11400000, guid: 7226828f544463c4f8728b8ae7b8ac24, type: 2}
